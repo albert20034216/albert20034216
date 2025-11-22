@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>軒軒的網站 - 大耳狗主題</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Hachi+Maru+Pop&family=Noto+Sans+TC:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        /* 基礎設置與動畫 */
+        :root {
+            --cinnamoroll-blue: #87ceeb;
+            --cinnamoroll-pink: #ffb6c1;
+            --soft-white: #ffffff;
+            --light-bg: #f5f8ff;
+            /* 網站連結按鈕顏色設定 */
+            --site-color-1: #ffb6c1; /* 主色：粉色 */
+            --site-color-2: #add8e6; /* 副色：淺藍色 */
+            --site-color-3: #90ee90; /* 第三色：淺綠色 */
+        }
+        
+        html, body {
+            height: 100%; 
+            margin: 0; 
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            color: #333;
+            /* 背景圖片設定 */
+            background-image: url('https://albert20034216.github.io/albert20034216/images/homepic2.jpg');
+            background-size: cover; background-position: center center; background-repeat: no-repeat; background-attachment: fixed; background-color: var(--light-bg);
+            
+            /* 關鍵：隱藏超出視窗的內容，才能看到滑動效果 */
+            overflow: hidden; 
+        }
+
+        /* 整個頁面內容的滑動容器 */
+        #slider-wrapper {
+            transition: transform 0.6s cubic-bezier(0.86, 0, 0.07, 1);
+            width: 100%; 
+            height: 200vh; /* 包含兩頁內容 */
+            /* 初始位置為 0，確保第一頁顯示在視窗頂部 */
+            transform: translateY(0); 
+        }
+        
+        /* 頁面切換狀態：向上滑動一個視窗的高度 (100vh) */
+        body.slide-up #slider-wrapper {
+            transform: translateY(-100vh);
+        }
+
+        /* 每個頁面區塊 */
+        .view-section {
+            width: 100%; 
+            height: 100vh; /* 每個頁面佔滿一個視窗高度 */
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            text-align: center; 
+            box-sizing: border-box;
+        }
+
+        /* 主要內容卡片容器 */
+        .container {
+            background-color: rgba(255, 255, 255, 0.95);
+            border-radius: 30px; box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
+            padding: 0px 0px 50px 0px; max-width: 600px; width: 90%; z-index: 2; overflow: hidden; position: relative;
+        }
+
+        /* 大耳狗主題圖片容器 (橫幅) */
+        #home-view .cinnamoroll-img-wrapper {
+            width: 100%; height: 200px; border-top-left-radius: 30px; border-top-right-radius: 30px;
+            overflow: hidden; margin-bottom: 30px;
+        }
+        .cinnamoroll-main-img {
+            width: 100%; height: 100%; object-fit: cover; display: block;
+        }
+        
+        /* 內文區塊 */
+        .content-area {
+            padding: 0px 70px;
+        }
+        #sites-view .content-area {
+            padding-top: 30px;
+        }
+
+        /* 標題與文字 (略) */
+        h1 { font-family: 'Hachi Maru Pop', cursive; color: var(--cinnamoroll-blue); font-size: 3.8em; margin-bottom: 5px; letter-spacing: 5px; }
+        h2 { color: #a0a0a0; font-size: 1.5em; margin-top: 0; margin-bottom: 30px; font-weight: 300; }
+        p { margin-bottom: 40px; font-size: 1.1em; color: #666; }
+
+        /* 網站頁面專用 Header (略) */
+        .site-header {
+            display: flex; justify-content: space-between; align-items: center; padding: 30px 70px 0px 70px; width: 100%; box-sizing: border-box;
+        }
+        .site-header h1 { font-size: 2.5em; margin: 0; text-align: left; }
+        .back-btn { background-color: var(--cinnamoroll-blue); padding: 10px 20px; font-size: 1em; border-radius: 50px; box-shadow: 0 5px 10px rgba(135, 206, 235, 0.5); }
+        .back-btn:hover { background-color: #5fb5e0; }
+
+        /* 網站按鈕樣式 (略) */
+        .btn-group { display: flex; flex-direction: column; gap: 15px; }
+        .main-btn {
+            display: block; background-color: var(--site-color-1); color: var(--soft-white); padding: 20px 35px; border-radius: 15px; text-decoration: none; font-weight: bold; font-size: 1.5em; letter-spacing: 1px; transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease; box-shadow: 0 8px 15px rgba(255, 182, 193, 0.5);
+        }
+        .main-btn:hover {
+            background-color: #ff80a0; transform: translateY(-3px); box-shadow: 0 12px 20px rgba(255, 128, 160, 0.6);
+        }
+        .site-btn-2 { background-color: var(--site-color-2); }
+        .site-btn-3 { background-color: var(--site-color-3); }
+
+
+        /* 響應式設計 (略) */
+        @media (max-width: 600px) {
+            .content-area { padding: 0px 30px; }
+            #sites-view .content-area { padding-top: 30px; }
+            .site-header { padding: 30px 30px 0px 30px; }
+            h1 { font-size: 3em; }
+            .container { padding: 0px 0px 40px 0px; }
+            #home-view .cinnamoroll-img-wrapper { height: 160px; }
+            .main-btn { font-size: 1.3em; padding: 15px 25px; } 
+            .site-header h1 { font-size: 2em; }
+        }
+    </style>
+</head>
+<body id="page-body">
+
+    <div id="slider-wrapper">
+        
+        <section id="home-view" class="view-section">
+            <div class="container">
+                <div class="cinnamoroll-img-wrapper">
+                    <img src="https://albert20034216.github.io/albert20034216/images/homepic1.jpg" alt="Cinnamoroll Banner" class="cinnamoroll-main-img">
+                </div>
+                <div class="content-area">
+                    <h1>軒軒的網站</h1>
+                    <h2>歡迎來到大耳狗的雲上咖啡廳 ☕</h2>
+                    <p>點擊下方按鈕，開始探索所有與軒軒相關的網站、社群連結或專案列表！</p>
+                    <a href="javascript:void(0)" onclick="slideUp()" class="main-btn">
+                        檢視所有網站
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <section id="sites-view" class="view-section">
+            <div class="container">
+                
+                <div class="site-header">
+                    <h1>所有網站</h1>
+                    <a href="javascript:void(0)" onclick="slideDown()" class="main-btn back-btn">
+                        回主頁
+                    </a>
+                </div>
+                
+                <div class="content-area">
+                    <h2 style="margin-top: 30px;">請選擇您要前往的網站連結</h2>
+                    
+                    <div class="btn-group">
+                        
+                        <a href="https://www.example.com/site1" class="main-btn">
+                            網站一
+                        </a>
+
+                        <a href="https://www.example.com/site2" class="main-btn site-btn-2">
+                            網站二
+                        </a>
+
+                        <a href="https://www.example.com/site3" class="main-btn site-btn-3">
+                            網站三
+                        </a>
+
+                    </div>
+
+                    <p style="margin-top: 40px; margin-bottom: 0; color: #aaa;">更多連結將會陸續新增...</p>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        const pageBody = document.getElementById('page-body');
+
+        function slideUp() {
+            pageBody.classList.add('slide-up');
+        }
+
+        function slideDown() {
+            pageBody.classList.remove('slide-up');
+        }
+        
+        // 🚨 關鍵修正：確保頁面載入時滾動到頂部，讓第一頁顯示
+        window.addEventListener('load', function() {
+            // 由於 body 設置了 overflow: hidden，我們需要移除所有滑動類別
+            // 這行程式碼確保在任何情況下，頁面都從 'home-view' 開始
+            pageBody.classList.remove('slide-up');
+        });
+    </script>
+</body>
+</html>
