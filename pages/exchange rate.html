@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🖤💖酷洛米風匯率牌價</title>
+    
+    <style>
+        /* 酷洛米色系定義 */
+        :root {
+            --primary-black: #1a1a1a;
+            --kuromi-pink: #f77fbe;
+            --kuromi-purple: #9C89B8; /* 官方酷洛米紫色 */
+            --background-white: #ffffff;
+            --light-grey: #f0f0f0;
+            --card-shadow: rgba(0, 0, 0, 0.25); /* 陰影加深一點，在深色背景上更突出 */
+            --buy-color: #2ecc71;
+            --sell-color: #e74c3c;
+            --text-on-purple: #f8f8f8; /* 淺色文字，用於紫色背景上的主要文字 */
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--kuromi-purple); 
+            margin: 0;
+            padding: 20px 0;
+            color: var(--primary-black);
+            min-height: 100vh;
+            overflow-y: auto; 
+            -webkit-overflow-scrolling: touch;
+        }
+
+        #dashboard-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 10px;
+            /* *** 移除白色背景和陰影 *** */
+            /* background-color: var(--background-white); */
+            /* box-shadow: 0 0 20px rgba(0, 0, 0, 0.2); */
+            padding-bottom: 20px;
+        }
+
+        /* 設置一個 flex 容器來確保 h1 居中 */
+        .header-container {
+            display: flex;
+            justify-content: center; 
+            width: 100%;
+            margin-bottom: 30px;
+            padding-top: 20px;
+        }
+
+        /* 網頁標題樣式 (依然保持白底，但現在直接在紫色背景上) */
+        h1 {
+            margin: 0; 
+            color: var(--primary-black);
+            font-weight: 700;
+            font-size: 2em;
+            display: inline-block; 
+            padding: 10px 25px; 
+            background-color: var(--background-white); 
+            border-radius: 12px; 
+            box-shadow: 0 0 15px var(--card-shadow); /* 讓標題更突出 */
+        }
+
+        /* 資訊列：顯示數據日期 */
+        #info-bar {
+            /* *** 保持白底，讓資訊清晰 *** */
+            background-color: var(--background-white);
+            padding: 15px;
+            border-radius: 12px;
+            box-shadow: 0 0 10px var(--card-shadow); 
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 1em;
+            font-weight: bold;
+        }
+
+        /* --- 資訊卡佈局 (Grid) --- */
+        #currency-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            padding-bottom: 20px;
+        }
+
+        /* --- 單張資訊卡 (Card) 樣式 --- */
+        .currency-card {
+            /* *** 保持白底，讓資訊卡在紫色背景上浮現 *** */
+            background-color: var(--background-white);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 8px 20px var(--card-shadow); /* 增加陰影強調浮動感 */
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border-top: 5px solid var(--kuromi-pink); 
+        }
+
+        .currency-card:hover {
+            transform: translateY(-5px); /* 放大上浮效果 */
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+        }
+
+        .currency-card h2 {
+            margin-top: 0;
+            color: var(--primary-black);
+            font-size: 1.6em;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        /* 雙向匯率的容器 */
+        .rate-direction {
+            margin-bottom: 20px;
+            padding: 10px;
+            border: 1px solid var(--light-grey);
+            border-radius: 8px;
+        }
+        
+        .rate-direction h3 {
+            margin: 0 0 10px 0;
+            font-size: 1.1em;
+            font-weight: 600;
+            color: var(--kuromi-pink);
+            text-align: center;
+            padding-bottom: 5px;
+            border-bottom: 1px dashed var(--light-grey);
+        }
+
+        /* 買入/賣出容器 */
+        .rate-pair {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .rate-box {
+            flex: 1;
+            text-align: center;
+            padding: 10px 0;
+            border-radius: 6px;
+        }
+        
+        /* 買入價樣式 */
+        .buy-box {
+            background-color: #f3fcf6; 
+        }
+
+        /* 賣出價樣式 */
+        .sell-box {
+            background-color: #fff4f4; 
+        }
+
+        .rate-label {
+            font-size: 0.8em;
+            color: #555;
+            display: block;
+            margin-bottom: 3px;
+        }
+
+        .rate-value {
+            font-size: 1.4em; 
+            font-weight: 700;
+        }
+        
+        .buy-box .rate-value {
+            color: var(--buy-color);
+        }
+        
+        .sell-box .rate-value {
+            color: var(--sell-color);
+        }
+
+        #loader, #error-message {
+            text-align: center;
+            font-size: 1.2em;
+            padding: 30px;
+            color: var(--background-white); /* 讓載入文字在紫色背景上能看見 */
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+        
+        /* 資料來源區塊 */
+        #source-disclaimer {
+            margin-top: 40px;
+            padding: 15px;
+            /* *** 保持深色背景，讓文字在紫色背景上保持高對比度 *** */
+            background-color: var(--primary-black);
+            color: var(--background-white);
+            border-radius: 8px;
+            box-shadow: 0 0 10px var(--card-shadow);
+            font-size: 0.8em;
+            line-height: 1.6;
+        }
+        
+        #source-disclaimer a {
+            color: var(--kuromi-pink);
+            text-decoration: none;
+        }
+
+        /* 手機適配優化 */
+        @media (max-width: 600px) {
+            #currency-grid {
+                grid-template-columns: 1fr;
+            }
+            .rate-pair {
+                flex-direction: row; 
+            }
+            .rate-box {
+                padding: 10px 5px;
+            }
+            .rate-value {
+                font-size: 1.3em;
+            }
+            h1 {
+                font-size: 1.5em;
+                padding: 8px 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    
+    <div id="dashboard-container">
+        <div class="header-container">
+            <h1>🖤💖 酷洛米雙向匯率牌價</h1>
+        </div>
+        
+        <div id="info-bar">
+            </div>
+
+        <div id="loader">正在從國際數據源載入匯率牌價...</div>
+        
+        <div id="currency-grid">
+            </div>
+        
+        <div id="error-message" class="hidden">
+            抱歉，無法載入匯率數據，請檢查網路連線。
+        </div>
+        
+        <div id="source-disclaimer">
+            <h3>資料來源與免責聲明</h3>
+            <p><strong>數據來源：</strong> 本數據基於國際公開 API <a href="https://www.exchangerate-api.com/" target="_blank">ExchangeRate-API</a> 提供的國際中間匯率，**不具備銀行交易的法定效力**。</p>
+            <p><strong>買入/賣出：</strong> 買入/賣出價格是根據國際中間匯率**模擬**合理價差 (Spread) 所得，僅供參考，實際交易請以台灣各大銀行牌告匯率為準。</p>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = "https://open.er-api.com/v6/latest/TWD";
+        const BASE_CODE = "TWD";
+
+        const TARGET_CURRENCIES = [
+            { code: "JPY", name: "日圓", spread: 0.015, precision: 6 },
+            { code: "USD", name: "美金", spread: 0.008, precision: 4 },
+            { code: "CNY", name: "人民幣", spread: 0.005, precision: 4 },
+            { code: "KRW", name: "韓元", spread: 0.012, precision: 6 },
+            { code: "HKD", name: "港幣", spread: 0.007, precision: 4 },
+            { code: "EUR", name: "歐元", spread: 0.01, precision: 4 }
+        ];
+
+        const gridContainer = document.getElementById('currency-grid');
+        const infoBar = document.getElementById('info-bar');
+        const loader = document.getElementById('loader');
+        const errorMessage = document.getElementById('error-message');
+
+        async function fetchExchangeRates() {
+            loader.classList.remove('hidden');
+            gridContainer.innerHTML = '';
+            errorMessage.classList.add('hidden');
+
+            try {
+                const response = await fetch(API_URL);
+                const data = await response.json();
+
+                if (data.result === 'success') {
+                    displayRates(data);
+                } else {
+                    throw new Error('API 數據返回失敗或請求錯誤。');
+                }
+
+            } catch (error) {
+                console.error("獲取匯率時發生錯誤:", error);
+                errorMessage.classList.remove('hidden');
+            } finally {
+                loader.classList.add('hidden');
+            }
+        }
+        
+        function calculateRates(midRate, spread, decimalPlaces) {
+            const bankSellRate = midRate * (1 + spread);
+            const bankBuyRate = midRate * (1 - spread);
+            
+            return {
+                buy: bankBuyRate.toFixed(decimalPlaces), 
+                sell: bankSellRate.toFixed(decimalPlaces) 
+            };
+        }
+
+        function displayRates(data) {
+            const rates = data.rates;
+            
+            const date = new Date(data.time_last_update_utc).toLocaleDateString('zh-TW', {
+                year: 'numeric', month: 'long', day: 'numeric'
+            });
+
+            infoBar.innerHTML = `
+                最新牌價數據日期：<strong>${date}</strong>
+            `;
+
+            TARGET_CURRENCIES.forEach(currency => {
+                const rateToBase = rates[currency.code]; 
+                
+                if (rateToBase) {
+                    const CCODE = currency.code; 
+                    const DEC = currency.precision; 
+                    
+                    /* --- 1. 計算 1 外幣 (CCODE) = 多少 TWD --- */
+                    const midRate_CCODE_to_TWD = 1 / rateToBase; 
+                    const { buy: twdBuy, sell: twdSell } = calculateRates(midRate_CCODE_to_TWD, currency.spread, DEC);
+                    
+                    /* --- 2. 計算 1 TWD = 多少 外幣 (CCODE) --- */
+                    const twd_buy_ccode = (1 / twdSell).toFixed(DEC); 
+                    const twd_sell_ccode = (1 / twdBuy).toFixed(DEC); 
+                    
+                    const cardHTML = `
+                        <div class="currency-card">
+                            <h2>${currency.name} (${CCODE})</h2>
+                            
+                            <div class="rate-direction">
+                                <h3>1 ${CCODE} = ${BASE_CODE}</h3>
+                                <div class="rate-pair">
+                                    <div class="rate-box buy-box">
+                                        <span class="rate-label">銀行買入 (Bank Buy)</span>
+                                        <span class="rate-value">${twdBuy}</span>
+                                    </div>
+                                    
+                                    <div class="rate-box sell-box">
+                                        <span class="rate-label">銀行賣出 (Bank Sell)</span>
+                                        <span class="rate-value">${twdSell}</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="rate-direction">
+                                <h3>1 ${BASE_CODE} = ${CCODE}</h3>
+                                <div class="rate-pair">
+                                    <div class="rate-box buy-box">
+                                        <span class="rate-label">銀行買入 (Bank Buy)</span>
+                                        <span class="rate-value">${twd_sell_ccode}</span> 
+                                    </div>
+                                    
+                                    <div class="rate-box sell-box">
+                                        <span class="rate-label">銀行賣出 (Bank Sell)</span>
+                                        <span class="rate-value">${twd_buy_ccode}</span> 
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    `;
+                    gridContainer.insertAdjacentHTML('beforeend', cardHTML);
+                }
+            });
+        }
+
+        window.onload = function() {
+            fetchExchangeRates(); 
+        }
+    </script>
+</body>
+</html>
