@@ -31,19 +31,74 @@
             color: #333;
             /* 背景圖片設定 */
             background-image: url('https://albert20034216.github.io/cat0608/images/homepic2.jpg');
-            background-size: cover; background-position: center center; background-repeat: no-repeat; background-attachment: fixed; background-color: var(--light-bg);
+            background-size: cover; background-position: center center; background-repeat: no-repeat; 
+            background-attachment: fixed; /* 確保背景固定 */
+            background-color: var(--light-bg);
             
             /* 關鍵：隱藏超出視窗的內容，才能看到滑動效果 */
-            overflow: hidden; 
+            overflow: hidden;
+            position: relative; /* 作為橫幅絕對定位的基準 */
         }
+
+        /* ------------------------------------- */
+        /* 🚨 修正點 1: 固定橫幅圖片的容器 */
+        /* ------------------------------------- */
+        #fixed-cinnamoroll-wrapper {
+            position: absolute; /* 相對於 body 固定 */
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%; /* 佔滿整個視窗，方便控制顯示/隱藏 */
+            overflow: hidden;
+            transition: opacity 0.3s ease;
+            z-index: 10; /* 確保在背景和滑動內容之間 */
+            pointer-events: none; /* 讓點擊能穿透到下層的滑動內容 */
+        }
+
+        /* 橫幅圖片實際樣式 */
+        .fixed-cinnamoroll-img {
+            width: 100%;
+            height: 200px; /* 圖片高度 */
+            position: absolute;
+            top: 50%; /* 垂直置中，但會被卡片拉下來 */
+            transform: translateY(-50%); /* 為了修正垂直置中的偏移 */
+            left: 50%;
+            transform: translateX(-50%);
+            /* 讓圖片的位置與 #home-view 容器的頂部對齊 */
+            top: calc(50vh - 300px + 30px); /* 50vh - (容器高度/2) + 30px (容器頂部 padding) */
+            
+            max-width: 600px;
+            width: 90%; /* 與 .container 寬度保持一致 */
+            
+            /* 使用一個遮罩來限制圖片的圓角和顯示區域 */
+            border-top-left-radius: 30px;
+            border-top-right-radius: 30px;
+            overflow: hidden;
+        }
+        .fixed-cinnamoroll-img img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+        
+        /* 滑動時隱藏固定圖片 */
+        body.slide-up #fixed-cinnamoroll-wrapper {
+            opacity: 0;
+        }
+
+
+        /* ------------------------------------- */
+        /* 修正點 2: 讓內容卡片置中 (略) */
+        /* ------------------------------------- */
 
         /* 整個頁面內容的滑動容器 */
         #slider-wrapper {
             transition: transform 0.6s cubic-bezier(0.86, 0, 0.07, 1);
             width: 100%; 
             height: 200vh; /* 包含兩頁內容 */
-            /* 初始位置為 0，確保第一頁顯示在視窗頂部 */
             transform: translateY(0); 
+            z-index: 20; /* 確保滑動內容在固定圖片之上 */
         }
         
         /* 頁面切換狀態：向上滑動一個視窗的高度 (100vh) */
@@ -54,7 +109,7 @@
         /* 每個頁面區塊 */
         .view-section {
             width: 100%; 
-            height: 100vh; /* 每個頁面佔滿一個視窗高度 */
+            height: 100vh; 
             display: flex; 
             justify-content: center; 
             align-items: center; 
@@ -69,13 +124,20 @@
             padding: 0px 0px 50px 0px; max-width: 600px; width: 90%; z-index: 2; overflow: hidden; position: relative;
         }
 
-        /* 大耳狗主題圖片容器 (橫幅) */
+        /* 🚨 修正點 3: 移除圖片的空間，並調整卡片頂部，讓內容置中 */
         #home-view .cinnamoroll-img-wrapper {
-            width: 100%; height: 200px; border-top-left-radius: 30px; border-top-right-radius: 30px;
-            overflow: hidden; margin-bottom: 30px;
+             /* 保持 HTML 結構，但讓它不佔空間 */
+            height: 200px;
+            margin-bottom: 30px;
+            visibility: hidden; /* 讓圖片空間保持，但內容不顯示 */
         }
-        .cinnamoroll-main-img {
-            width: 100%; height: 100%; object-fit: cover; display: block;
+        /* 確保卡片內容置中在圖片佔位之下的區域 */
+        #home-view .content-area {
+            /* 調整 padding，讓文字內容看起來置中 */
+            padding-top: 0px;
+        }
+        #home-view .cinnamoroll-main-img {
+            display: none; /* 隱藏舊的 img 標籤 */
         }
         
         /* 內文區塊 */
@@ -121,10 +183,22 @@
             #home-view .cinnamoroll-img-wrapper { height: 160px; }
             .main-btn { font-size: 1.3em; padding: 15px 25px; } 
             .site-header h1 { font-size: 2em; }
+            /* 手機版修正固定圖片定位 */
+            .fixed-cinnamoroll-img {
+                 /* 根據手機版容器尺寸重新計算定位 */
+                 top: calc(50vh - 270px + 30px); /* 假設手機版卡片高度約 540px */
+            }
         }
     </style>
 </head>
 <body id="page-body">
+
+    <div id="fixed-cinnamoroll-wrapper">
+        <div class="fixed-cinnamoroll-img">
+            <img src="https://albert20034216.github.io/cat0608/images/homepic1.jpg" alt="Cinnamoroll Banner">
+        </div>
+    </div>
+
 
     <div id="slider-wrapper">
         
@@ -190,13 +264,10 @@
             pageBody.classList.remove('slide-up');
         }
         
-        // 🚨 關鍵修正：確保頁面載入時滾動到頂部，讓第一頁顯示
+        // 確保頁面載入時從主頁開始
         window.addEventListener('load', function() {
-            // 由於 body 設置了 overflow: hidden，我們需要移除所有滑動類別
-            // 這行程式碼確保在任何情況下，頁面都從 'home-view' 開始
             pageBody.classList.remove('slide-up');
         });
     </script>
 </body>
-
 </html>
