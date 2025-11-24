@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>台北車站 OpenStreetMap</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+       integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+       crossorigin=""/>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+       integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+       crossorigin=""></script>
+
+    <style>
+        /* 1. 預設樣式 (適用於所有設備，主要是電腦/平板) */
+        #map {
+            height: 600px; /* 電腦版地圖高度 */
+            width: 100%;
+        }
+        
+        /* 2. 響應式調整：使用媒體查詢偵測手機螢幕 */
+        /* 當螢幕最大寬度為 768px 時 (一般視為手機/小平板) */
+        @media (max-width: 768px) {
+            /* 在手機上，讓地圖佔滿整個可視視窗的高度 (vh = viewport height) */
+            /* 這樣用戶就不需要滾動頁面來查看地圖 */
+            #map {
+                height: 100vh; 
+            }
+            
+            /* 將 body 和 html 的高度也設為 100%，以確保地圖能佔滿整個頁面 */
+            html, body {
+                height: 100%;
+                margin: 0; /* 移除瀏覽器預設的邊距 */
+                padding: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="map"></div>
+
+    <script>
+        // 1. 設定地圖的初始座標和縮放級別
+        const taipeiStationCoord = [25.0477, 121.5170];
+        const initialZoom = 15; 
+
+        // 2. 初始化地圖
+        const map = L.map('map').setView(taipeiStationCoord, initialZoom);
+
+        // 3. 加入 OpenStreetMap 圖層
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+        }).addTo(map);
+
+        // 4. 加入一個標記 (Marker) 在台北火車站的位置
+        const marker = L.marker(taipeiStationCoord).addTo(map);
+
+        // 5. 標記上可以加入彈出視窗 (Popup)，並自動開啟
+        marker.bindPopup("<b>台北火車站</b><br>Taiwan Railway Administration").openPopup();
+    </script>
+
+</body>
+</html>
