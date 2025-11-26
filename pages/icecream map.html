@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png">
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
 
@@ -327,10 +328,23 @@
             });
         }
 
+        // 定義藍色地標圖案 (使用 Leaflet 預設藍色圖標)
+        const blueIcon = new L.Icon({
+            iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
+            shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+            iconSize: [25, 41],
+            iconAnchor: [12, 41],
+            popupAnchor: [1, -34],
+            shadowSize: [41, 41]
+        });
 
-        // 預設位置 (使用基隆和台北的平均中心點，以便看到大部分點位)
+        // 預設位置 (使用基隆和台北的平均中心點)
         const INITIAL_CENTER = [25.06, 121.6]; 
         const INITIAL_ZOOM = 10;
+        
+        // 失敗定位時的預設座標 (台北市萬華區昆明街7-11附近)
+        const DEFAULT_LOCATION = [25.047176, 121.517058]; 
+        const DEFAULT_ZOOM = 14; 
         
         let currentLocationMarker;
         let accuracyCircle;
@@ -410,11 +424,14 @@
         }).addTo(map);
 
 
-        // --- 定位功能實作 (保留) ---
+        // --- 定位功能實作 ---
+
+        // 成功定位處理
         function onLocationFound(e) {
-            const radius = e.accuracy;
             const latlng = e.latlng;
+            const radius = e.accuracy;
             
+            // 清除舊的標記和圈
             if (currentLocationMarker) {
                 map.removeLayer(currentLocationMarker);
             }
@@ -422,9 +439,14 @@
                 map.removeLayer(accuracyCircle);
             }
 
-            currentLocationMarker = L.marker(latlng).addTo(map)
-                .bindPopup("您目前的位置，誤差約 " + radius.toFixed(0) + " 公尺").openPopup();
+            // 標記當前位置 (使用藍色地標圖案)
+            currentLocationMarker = L.marker(latlng, {
+                icon: blueIcon,
+                title: "當前位置"
+            }).addTo(map)
+              .bindPopup("您目前的位置，誤差約 " + radius.toFixed(0) + " 公尺").openPopup();
 
+            // 精度圈
             accuracyCircle = L.circle(latlng, radius, {
                 color: 'blue',
                 fillColor: '#30f',
@@ -432,13 +454,36 @@
                 weight: 1
             }).addTo(map);
 
-            map.setView(latlng, Math.min(map.getZoom(), 16));
+            // 將地圖中心設置於定位點，並保持或放大到 16 級
+            map.setView(latlng, Math.min(map.getZoom(), 16), {
+                animate: true,
+                pan: { duration: 0.5 }
+            });
         }
 
+        // 失敗定位處理
         function onLocationError(e) {
-            console.error(e.message);
-            alert("無法取得您的地理位置。\n錯誤訊息: " + e.message + "\n地圖將顯示預設中心點。");
-            map.setView(INITIAL_CENTER, INITIAL_ZOOM);
+            console.error("定位失敗：", e.message);
+            
+            // 清除舊的標記和圈 (以防萬一)
+            if (currentLocationMarker) {
+                map.removeLayer(currentLocationMarker);
+            }
+            if (accuracyCircle) {
+                map.removeLayer(accuracyCircle);
+            }
+
+            alert("無法取得您的地理位置。\n錯誤訊息: " + e.message + "\n地圖將定位於預設位置。");
+            
+            // 在預設座標上標記 (使用藍色地標圖案)
+            currentLocationMarker = L.marker(DEFAULT_LOCATION, {
+                icon: blueIcon,
+                title: "預設位置"
+            }).addTo(map)
+              .bindPopup("定位失敗，顯示預設位置").openPopup();
+
+            // 將地圖中心設定到預設位置
+            map.setView(DEFAULT_LOCATION, DEFAULT_ZOOM);
         }
 
         map.on('locationfound', onLocationFound);
@@ -457,6 +502,7 @@
                 link.role = 'button';
                 L.DomEvent.on(link, 'click', L.DomEvent.stop)
                           .on(link, 'click', function () {
+                              // 再次觸發定位，並設定視圖
                               map.locate({setView: true, maxZoom: 16});
                           });
                 return container;
@@ -466,7 +512,7 @@
 
         // 網頁開啟時的初始定位請求
         map.locate({
-            setView: true,
+            setView: false, // 暫時不自動設定視圖，讓 onLocationFound/Error 處理置中邏輯
             maxZoom: 16,   
             watch: false,  
             enableHighAccuracy: true
