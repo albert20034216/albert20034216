@@ -81,7 +81,13 @@
 
         /* 全家雙口味樣式 (青色/淺藍綠) */
         .family-double-icon {
-            background-color: #40E0D0; 
+            background-color: #40E0D0;
+        }
+
+        /* 家標記 - 紫色 (亮) */
+        .home-icon {
+            background-color: #8600FF; 
+            color: #FFFFFF;
         }
     </style>
 </head>
@@ -94,6 +100,9 @@
         // 🌟 最新門市清單 (2025.11.27製作) 🌟
         // =================================================================
         const STORE_DATA = [
+            // --- 家標記 ---
+            [25.071425, 121.663327, '貓貓家', 'HOME', '新北市汐止區和平街6巷3弄1號', '貓'],
+            [25.149491,121.714967 , '軒軒家', 'HOME', '基隆市中山區中和路168巷9弄1號', '軒'],
 
             // --- 7-11 (雪淋霜) ---
             [25.151645, 121.771167, '海洋', '7-11(雪淋霜)', '基隆市中正區中正路609號', '雪'],
@@ -732,6 +741,9 @@
                 case '全家(雙口味)':
                     className += 'family-double-icon';
                     break;
+                case 'HOME':
+                    className += 'home-icon';
+                    break;
                 default:
                     className += 'xuelin-icon'; 
             }
@@ -785,7 +797,7 @@
         const sevenElevenDoubleGroup = L.layerGroup();
         const familySingleGroup = L.layerGroup(); 
         const familyDoubleGroup = L.layerGroup(); 
-
+        const homeGroup = L.layerGroup(); 
 
         // 4. 動態新增打點
         STORE_DATA.forEach(data => {
@@ -802,7 +814,7 @@
                 case '7-11(酷聖霜)':
                     marker.addTo(sevenElevenKuShengGroup);
                     break;
-				case '7-11(雙口味)':
+		case '7-11(雙口味)':
                     marker.addTo(sevenElevenDoubleGroup);
                     break;
                 case '全家(單口味)':
@@ -811,15 +823,19 @@
                 case '全家(雙口味)':
                     marker.addTo(familyDoubleGroup);
                     break;
+                case 'HOME':
+                    marker.addTo(homeGroup);
+                    break;
             }
         });
         
         // 將所有圖層預設開啟
-		sevenElevenXueLinGroup.addTo(map);
+	sevenElevenXueLinGroup.addTo(map);
         sevenElevenKuShengGroup.addTo(map);
         sevenElevenDoubleGroup.addTo(map);
         familySingleGroup.addTo(map);
         familyDoubleGroup.addTo(map);
+        homeGroup.addTo(map);
 
 
         // 5. 加入圖層控制項 (移至左上角)
@@ -832,7 +848,8 @@
             "🟠 7-11 (雙口味)": sevenElevenDoubleGroup, 
             "🟤 7-11 (酷聖霜)": sevenElevenKuShengGroup,
             "🔵 全家 (單口味)": familySingleGroup, 
-            "🟢 全家 (雙口味)": familyDoubleGroup  
+            "🟢 全家 (雙口味)": familyDoubleGroup,
+            "🟣 家標記": homeGroup
         };
         
         L.control.layers(baseLayers, overlayLayers, {
@@ -889,13 +906,13 @@
                 map.removeLayer(accuracyCircle);
             }
 
-            const errorMessage = "無法取得您的地理位置。\n錯誤訊息: " + e.message + "\n地圖將定位於預設位置。";
+            const errorMessage = "無法取得您的地理位置。\n錯誤訊息: " + e.message + "\n地圖將預設定位於台北車站。";
 
             currentLocationMarker = L.marker(DEFAULT_LOCATION, {
                 icon: blueIcon,
                 title: "預設位置"
             }).addTo(map)
-              .bindPopup("定位失敗，顯示預設位置").openPopup();
+              .bindPopup("定位失敗，預設位置為台北車站").openPopup();
 
             map.setView(DEFAULT_LOCATION, DEFAULT_ZOOM);
             
@@ -942,4 +959,3 @@
 
 </body>
 </html>
-
